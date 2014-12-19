@@ -1,0 +1,28 @@
+Sparrow3d:
+* creating an IRC thread for one server
+	* connects to server
+	* responses to ping
+* sending /messages to the thread
+* creating child channels if something is joined
+* getting a list of changes since last time as list
+	* context (channel, server, error, etc.)
+	* content
+
+Sissi:
+* First view server config
+* L + up => server view
+* L + left/right => switch between different servers/channels
+* GUI class system
+	* window operator class
+		* register window pairs (!)
+			* main view
+			* options view
+		* deregister window pairs (!)
+		* changing between views
+		* calling window calc function
+		* drawing the necessary windows (+ changes)
+	* window class
+		* surface to draw to
+		* size
+		* virtual updateWindow();
+		* virtual calc();
