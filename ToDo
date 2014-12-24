@@ -1,12 +1,4 @@
 Sparrow3d:
-* creating an IRC thread for one server
-	* connects to server
-	* responses to ping
-* sending /messages to the thread
-* creating child channels if something is joined
-* getting a list of changes since last time as list
-	* context (channel, server, error, etc.)
-	* content
 
 Sissi:
 * First view server config
