@@ -16,7 +16,7 @@
   * Alexander Matthes (Ziz) , zizsdl_at_googlemail.com */
 
 
-#define GCW_FEELING
+//#define GCW_FEELING
 
 #if defined GCW_FEELING && defined DESKTOP
 	#define TESTING
