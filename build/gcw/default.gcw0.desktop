@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Sissi
+Comment=Sissi Is Simple SDL IRC
+Exec=sissi.sh
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=sissi
+Categories=applications;

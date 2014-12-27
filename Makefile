@@ -54,3 +54,6 @@ makeBuildDir:
 clean:
 	rm -f *.o
 	rm -f sissi$(SUFFIX)
+
+oclean:
+	rm -f *.o
