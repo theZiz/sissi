@@ -735,42 +735,44 @@ int calc(Uint32 steps)
 	}
 	//observer!
 	//is a channel gone?
-	pWindow window = serverWindow.next;
-	while (window)
-	{
-		pWindow next = window->next;
-		spNetIRCChannelPointer channel = serverWindow.data.server.server->first_channel;
-		while (channel)
-		{
-			if (channel == window->data.channel.channel)
-				break;
-			channel = channel->next;
-		}
-		if (channel == NULL) //not found!
-			leave_channel(window);
-		window = next;
-	}
-	//is a new channel available?
-	spNetIRCChannelPointer channel = serverWindow.data.server.server->first_channel;
-	while (channel)
+	if (serverWindow.data.server.server)
 	{
 		pWindow window = serverWindow.next;
 		while (window)
-		{	
-			if (window->data.channel.channel == channel)
-				break;
-			window = window->next;
-		}
-		if (window == NULL) //not found!
 		{
-			spStopKeyboardInput();
-			momWindow = create_channel_window(channel);
-			showMessage = 1;
-			spPollKeyboardInput(momWindow->message,256,SP_PRACTICE_OK_NOWASD_MASK);
+			pWindow next = window->next;
+			spNetIRCChannelPointer channel = serverWindow.data.server.server->first_channel;
+			while (channel)
+			{
+				if (channel == window->data.channel.channel)
+					break;
+				channel = channel->next;
+			}
+			if (channel == NULL) //not found!
+				leave_channel(window);
+			window = next;
 		}
-		channel = channel->next;
+		//is a new channel available?
+		spNetIRCChannelPointer channel = serverWindow.data.server.server->first_channel;
+		while (channel)
+		{
+			pWindow window = serverWindow.next;
+			while (window)
+			{	
+				if (window->data.channel.channel == channel)
+					break;
+				window = window->next;
+			}
+			if (window == NULL) //not found!
+			{
+				spStopKeyboardInput();
+				momWindow = create_channel_window(channel);
+				showMessage = 1;
+				spPollKeyboardInput(momWindow->message,256,SP_PRACTICE_OK_NOWASD_MASK);
+			}
+			channel = channel->next;
+		}
 	}
-	
 	
 	blinkCounter+=steps;
 	while (blinkCounter > 1000)
