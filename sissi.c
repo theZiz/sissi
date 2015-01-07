@@ -303,7 +303,7 @@ void calc_message_window(pWindow window,int steps)
 		spGetInput()->button[SP_BUTTON_SELECT_NOWASD] = 0;
 		window->scroll = -1;
 	}
-	if (spGetInput()->button[SP_BUTTON_L_NOWASD] && spGetInput()->axis[1] < 0)
+	if (window->block && spGetInput()->button[SP_BUTTON_L_NOWASD] && spGetInput()->axis[1] < 0)
 	{
 		if (window->scroll == -1)
 			window->scroll = window->block->line_count;
