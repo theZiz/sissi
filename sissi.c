@@ -67,6 +67,7 @@ typedef struct sWindow {
 			char nickname[256];
 			char username[256];
 			char realname[256];
+			char password[256];
 			int selection;
 			spNetIRCServerPointer server;
 		} server;
@@ -99,6 +100,7 @@ void save_config()
 	sprintf(spConfigGetString(config,"nickname","Sissiuser"),"%s",serverWindow.data.server.nickname);
 	sprintf(spConfigGetString(config,"username","Sissiuser"),"%s",serverWindow.data.server.username);
 	sprintf(spConfigGetString(config,"realname","Elisabeth Amalie Eugenie"),"%s",serverWindow.data.server.realname);
+	sprintf(spConfigGetString(config,"password","123abc"),"%s",serverWindow.data.server.password);
 	spConfigWrite(config);
 }
 
@@ -120,13 +122,21 @@ void update_message_window(pWindow window)
 		spFontDrawMiddle(screen->w/2,font_small->maxheight*3,0,"Can't connect.",font_big);
 	else
 	{
+		if (window->kind == 1 && window->data.channel.channel->status == -1)
+			spFontDrawMiddle(screen->w/2,font_small->maxheight*3,0,"Lost channel. Kicked?",font_big);
+		else
+		if (window->kind == 1 && window->data.channel.channel->status == 0)
+			spFontDrawMiddle(screen->w/2,font_small->maxheight*3,0,"Connecting to channel...",font_big);
+		else
 		if (window->block)
 			spFontDrawTextBlock(left,2,font_small->maxheight+font->maxheight,0,window->block,screen->h-spGetVirtualKeyboard()->h-2*font_small->maxheight-2*font->maxheight,(window->scroll == -1)?SP_ONE:((window->scroll*SP_ONE+1)/window->block->line_count),font_chat);
 		if (window->kind == 0)
 			spFontDrawMiddle(screen->w/2,font_small->maxheight,0,window->data.server.name,font);
 		else
 			spFontDrawMiddle(screen->w/2,font_small->maxheight,0,window->data.channel.name,font);
-		int w = spFontDrawRight(screen->w-2,screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight+(font->maxheight-font_small->maxheight)/2,0,"[r] Send",font_small);
+		int w = 0;
+		if (window->kind == 0 || window->data.channel.channel->status == 1)
+			w = spFontDrawRight(screen->w-2,screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight+(font->maxheight-font_small->maxheight)/2,0,"[r] Send",font_small);
 		spRectangle(screen->w/2-w/2-3,screen->h-spGetVirtualKeyboard()->h-font->maxheight/2-font_small->maxheight,0,screen->w-w-6,font->maxheight*3/4,BG2_COLOR);
 		
 		if (spFontWidth(window->message,font) < screen->w-w-6)
@@ -151,6 +161,12 @@ void update_options_window(pWindow window)
 	spClearTarget( BG1_COLOR );
 	if (window->kind == 0)
 	{
+		char buffer[256];
+		int i;
+		for (i = 0; serverWindow.data.server.password[i] != 0; i++)
+			buffer[i] = '*';
+		buffer[i] = 0;
+
 		spFontDrawMiddle(screen->w/2,0,0,"[l]+[^] apply/server view [l]+[<][>] switch tab [B] select [r] join",font_small);
 		
 		spFontDrawMiddle(screen->w/2,font_small->maxheight*3,0,"Server config",font_big);
@@ -159,7 +175,12 @@ void update_options_window(pWindow window)
 		int y = font_small->maxheight*3+font_big->maxheight+font_small->maxheight/2;
 		spFontDraw(2,y+(font->maxheight+font_small->maxheight/2)*serverWindow.data.server.selection,0,"->",font);
 		if (blinkCounter < 500 && spIsKeyboardPolled())
-			spFontDraw(w+spFontWidth(spGetInput()->keyboard.buffer,font),y+(font->maxheight+font_small->maxheight/2)*serverWindow.data.server.selection,0,"|",font);
+		{
+			if (serverWindow.data.server.selection != 5)
+				spFontDraw(w+spFontWidth(spGetInput()->keyboard.buffer,font),y+(font->maxheight+font_small->maxheight/2)*serverWindow.data.server.selection,0,"|",font);
+			else
+				spFontDraw(w+spFontWidth(buffer,font),y+(font->maxheight+font_small->maxheight/2)*serverWindow.data.server.selection,0,"|",font);
+		}
 
 		spFontDrawRight(w,y,0,"address: ",font);
 		spFontDraw(w,y,0,serverWindow.data.server.name,font);
@@ -175,6 +196,9 @@ void update_options_window(pWindow window)
 		y+=font->maxheight+font_small->maxheight/2;
 		spFontDrawRight(w,y,0,"real name: ",font);
 		spFontDraw(w,y,0,serverWindow.data.server.realname,font);
+		y+=font->maxheight+font_small->maxheight/2;
+		spFontDrawRight(w,y,0,"password: ",font);
+		spFontDraw(w,y,0,buffer,font);
 		
 		draw_keyboard();
 	}
@@ -295,6 +319,7 @@ pWindow create_channel_window(spNetIRCChannelPointer channel)
 	return new_window;
 }
 
+#define BUTTON_DELAY 40
 int button_pressed = 0;
 
 void calc_message_window(pWindow window,int steps)
@@ -319,7 +344,7 @@ void calc_message_window(pWindow window,int steps)
 			if (button_pressed <= 0)
 			{
 				window->scroll--;
-				button_pressed += 20;
+				button_pressed += BUTTON_DELAY;
 			}
 		}
 		if (window->scroll < 0)
@@ -327,7 +352,7 @@ void calc_message_window(pWindow window,int steps)
 	}
 	else
 		button_pressed = 0;
-	if (spGetInput()->button[SP_BUTTON_R_NOWASD])
+	if (spGetInput()->button[SP_BUTTON_R_NOWASD] && window->message[0] && (window->kind == 0 || window->data.channel.channel->status == 1))
 	{
 		spGetInput()->button[SP_BUTTON_R_NOWASD] = 0;
 		if (window->message[0] == '/')
@@ -475,6 +500,9 @@ void start_keyboard_server_options()
 		case 4:
 			spPollKeyboardInput(serverWindow.data.server.realname,256,SP_PRACTICE_OK_NOWASD_MASK);
 			break;
+		case 5:
+			spPollKeyboardInput(serverWindow.data.server.password,256,SP_PRACTICE_OK_NOWASD_MASK);
+			break;
 	}
 }
 
@@ -506,7 +534,7 @@ void calc_options_window(pWindow window,int steps)
 		spGetInput()->button[SP_BUTTON_SELECT_NOWASD] = 0;
 		if (momWindow->kind == 0)
 		{
-			momWindow->data.server.selection = (momWindow->data.server.selection+1)%5;
+			momWindow->data.server.selection = (momWindow->data.server.selection+1)%6;
 			spStopKeyboardInput();
 			start_keyboard_server_options();
 		}
@@ -575,7 +603,7 @@ void calc_options_window(pWindow window,int steps)
 				if (button_pressed <= 0)
 				{
 					window->data.channel.selected_nick++;
-					button_pressed += 100;
+					button_pressed += BUTTON_DELAY;
 				}
 			}
 		}
@@ -593,7 +621,7 @@ void calc_options_window(pWindow window,int steps)
 				if (button_pressed <= 0)
 				{
 					window->data.channel.selected_nick--;
-					button_pressed += 100;
+					button_pressed += BUTTON_DELAY;
 				}
 			}
 		}
@@ -607,12 +635,15 @@ char oldPort[256];
 char oldNickname[256];
 char oldUsername[256];
 char oldRealname[256];
+char oldPassword[256];
 
 #define TRANSIT_TIME 300
 int transit = 0; //1 left, 2 up, 3 right, 4 down
 int transit_counter = 0;
 
 pWindow goalWindow;
+
+int in_exit_screen = 0;
 
 void draw()
 {
@@ -658,7 +689,8 @@ void draw()
 			spBlitSurface(screen->w/2,screen->h* 1/2+transit_counter*screen->h/TRANSIT_TIME,0,momWindow->options_window);
 			break;
 	}
-	spFlip();
+	if (in_exit_screen == 0)
+		spFlip();
 }
 
 void start_options_window()
@@ -671,6 +703,7 @@ void start_options_window()
 		sprintf(oldNickname,"%s",serverWindow.data.server.nickname);
 		sprintf(oldUsername,"%s",serverWindow.data.server.username);
 		sprintf(oldRealname,"%s",serverWindow.data.server.realname);
+		sprintf(oldPassword,"%s",serverWindow.data.server.password);
 	}
 	showMessage = 0;	
 }
@@ -701,7 +734,7 @@ void start_message_window()
 	}
 	if (momWindow->kind == 0 && serverWindow.data.server.server == NULL)
 	{
-		serverWindow.data.server.server = spNetIRCConnectServer(serverWindow.data.server.name,atoi(serverWindow.data.server.port),serverWindow.data.server.nickname,serverWindow.data.server.username,serverWindow.data.server.realname);
+		serverWindow.data.server.server = spNetIRCConnectServer(serverWindow.data.server.name,atoi(serverWindow.data.server.port),serverWindow.data.server.nickname,serverWindow.data.server.username,serverWindow.data.server.realname,serverWindow.data.server.password);
 		if (serverWindow.data.server.server)
 		{
 			momWindow->first_message = &(serverWindow.data.server.server->first_message);
@@ -721,10 +754,39 @@ void start_message_window()
 	showMessage = 1;
 }
 
+void draw_exit()
+{
+	draw();
+	spInterpolateTargetToColor(0,2*SP_ONE/3);
+	spFontDrawMiddle(screen->w/2,font_big->maxheight*2,0,"Do you really\nwant to exit?\n\n[o] Yes [c] No",font_big);
+	spFlip();
+}
+
+int calc_exit(Uint32 steps)
+{
+	if (spGetInput()->button[SP_PRACTICE_CANCEL_NOWASD])
+	{
+		spGetInput()->button[SP_PRACTICE_CANCEL_NOWASD] = 0;
+		return 2;
+	}
+	if (spGetInput()->button[SP_PRACTICE_OK_NOWASD])
+	{
+		spGetInput()->button[SP_PRACTICE_OK_NOWASD] = 0;
+		return 1;
+	}
+	return 0;
+}
+
 int calc(Uint32 steps)
 {
 	if (spGetInput()->button[SP_BUTTON_START_NOWASD])
-		return 1;
+	{
+		spGetInput()->button[SP_BUTTON_START_NOWASD] = 0;
+		in_exit_screen = 1;
+		if (spLoop( draw_exit, calc_exit, 10, resize, NULL ) == 1)
+			return 1;
+		in_exit_screen = 0;
+	}
 	if (transit)
 	{
 		transit_counter-=steps;
@@ -900,6 +962,8 @@ void resize(Uint16 w,Uint16 h)
 	font_big = spFontLoad(FONT_LOCATION,FONT_SIZE_BIG*spGetSizeFactor()>>SP_ACCURACY);
 	spFontAdd(font_big,SP_FONT_GROUP_ASCII,MAIN_COLOR);//whole ASCII
 	spFontAddBorder(font_big,BG1_COLOR);
+	spFontAddButton( font_big, 'o', SP_PRACTICE_OK_NOWASD_NAME, MAIN_COLOR, BG2_COLOR ); //a == left button
+	spFontAddButton( font_big, 'c', SP_PRACTICE_CANCEL_NOWASD_NAME, MAIN_COLOR, BG2_COLOR ); // d == right button
 	if (font_small)
 		spFontDelete(font_small);
 	font_small = spFontLoad(FONT_LOCATION,FONT_SIZE_SMALL*spGetSizeFactor()>>SP_ACCURACY);
@@ -944,13 +1008,15 @@ int main(int argc, char **argv)
 	sprintf(serverWindow.data.server.nickname,"%s",spConfigGetString(config,"nickname","Sissiuser"));
 	sprintf(serverWindow.data.server.username,"%s",spConfigGetString(config,"username","Sissiuser"));
 	sprintf(serverWindow.data.server.realname,"%s",spConfigGetString(config,"realname","Elisabeth Amalie Eugenie"));
+	sprintf(serverWindow.data.server.password,"%s",spConfigGetString(config,"password","123abc"));
 	sprintf(oldName,"%s",serverWindow.data.server.name);
 	sprintf(oldPort,"%s",serverWindow.data.server.port);
 	sprintf(oldNickname,"%s",serverWindow.data.server.nickname);
 	sprintf(oldUsername,"%s",serverWindow.data.server.username);
 	sprintf(oldRealname,"%s",serverWindow.data.server.realname);
+	sprintf(oldPassword,"%s",serverWindow.data.server.password);
 	serverWindow.data.server.selection = 0;
-	serverWindow.data.server.server = spNetIRCConnectServer(serverWindow.data.server.name,atoi(serverWindow.data.server.port),serverWindow.data.server.nickname,serverWindow.data.server.username,serverWindow.data.server.realname);
+	serverWindow.data.server.server = spNetIRCConnectServer(serverWindow.data.server.name,atoi(serverWindow.data.server.port),serverWindow.data.server.nickname,serverWindow.data.server.username,serverWindow.data.server.realname,serverWindow.data.server.password);
 	if (serverWindow.data.server.server)
 	{
 		serverWindow.first_message = &(serverWindow.data.server.server->first_message);

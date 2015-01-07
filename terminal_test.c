@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 	char* nick = argv[3];
 	printf("\033[1mConnecting to %s:%i as %s\033[0m\n",name,port,nick);
 	spInitNet();
-	spNetIRCServerPointer server = spNetIRCConnectServer(name,port,nick,"Sissi","Elisabeth");
+	spNetIRCServerPointer server = spNetIRCConnectServer(name,port,nick,"Sissi","Elisabeth","*");
 	if (server == NULL)
 	{
 		printf("\033[1mConnection failed...\033[0m\n");
