@@ -341,7 +341,7 @@ void calc_message_window(pWindow window,int steps)
 					spStopKeyboardInput();
 					momWindow = create_channel_window(channel);
 					showMessage = 1;
-					spPollKeyboardInput(momWindow->message,256,SP_PRACTICE_OK_NOWASD_MASK);
+					spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
 					return;
 				}
 			}
@@ -351,7 +351,9 @@ void calc_message_window(pWindow window,int steps)
 		else
 		if (window->kind)
 			spNetIRCSendMessage(serverWindow.data.server.server,window->data.channel.channel,window->message);
+		spStopKeyboardInput();
 		window->message[0] = 0;
+		spPollKeyboardInput(window->message,512,SP_PRACTICE_OK_NOWASD_MASK);
 	}
 	handle_keyboard_buttons();
 	if (window->last_read_message == NULL || window->first_message == NULL || *(window->first_message) == NULL)
@@ -447,7 +449,7 @@ int join_channel()
 	{
 		momWindow = create_channel_window(channel);
 		showMessage = 1;
-		spPollKeyboardInput(momWindow->message,256,SP_PRACTICE_OK_NOWASD_MASK);
+		spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
 		return 1;
 	}
 	return 0;
@@ -529,7 +531,7 @@ void calc_options_window(pWindow window,int steps)
 			spNetIRCChannelPointer channel = spNetIRCJoinChannel(serverWindow.data.server.server,nick->name);
 			momWindow = create_channel_window(channel);
 			showMessage = 1;
-			spPollKeyboardInput(momWindow->message,256,SP_PRACTICE_OK_NOWASD_MASK);
+			spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
 		}
 		
 	}
@@ -700,7 +702,7 @@ void start_message_window()
 	if (momWindow->kind == 0)
 		save_config();
 	if (momWindow->kind || serverWindow.data.server.server)
-		spPollKeyboardInput(momWindow->message,256,SP_PRACTICE_OK_NOWASD_MASK);
+		spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
 	showMessage = 1;
 }
 
@@ -768,7 +770,7 @@ int calc(Uint32 steps)
 				spStopKeyboardInput();
 				momWindow = create_channel_window(channel);
 				showMessage = 1;
-				spPollKeyboardInput(momWindow->message,256,SP_PRACTICE_OK_NOWASD_MASK);
+				spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
 			}
 			channel = channel->next;
 		}
