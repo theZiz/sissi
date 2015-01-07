@@ -180,7 +180,8 @@ void update_options_window(pWindow window)
 	}
 	else
 	{
-		spFontDrawMiddle(screen->w/2,0,0,"[l]+[^] channel [l]+[<][>] tab [v][^] select [o] query [B] leave [r] join",font_small);
+		spFontDrawMiddle(screen->w/2,0,0,"[l]+[^] back tochannel [l]+[<][>] switch tab [r] join",font_small);
+		spFontDrawMiddle(screen->w/2,screen->h-font_small->maxheight,0,"[v][^] select [3] quote [o] query [B] leave",font_small);
 
 		int c = 0;
 		spNetIRCNickPointer nick = window->data.channel.channel->first_nick;
@@ -203,15 +204,15 @@ void update_options_window(pWindow window)
 		spFontDrawMiddle(screen->w/2,font_small->maxheight,0,buffer,font);
 
 		nick = window->data.channel.channel->first_nick;
-		int y = font_small->maxheight+font->maxheight;
-		int max = screen->h-2*font_small->maxheight-font->maxheight;
+		int y = 2*font_small->maxheight;
+		int max = screen->h-3*font_small->maxheight-font->maxheight;
 		int d = font->maxheight*4/5;
 		if (c > max/d)
 			y += -d*window->data.channel.selected_nick + (max*window->data.channel.selected_nick/c)/d*d;
 		c = 0;
 		while (nick && y < screen->h-font->maxheight)
 		{
-			if (y >= font_small->maxheight+font->maxheight)
+			if (y >= 2*font_small->maxheight)
 			{
 				if (c == window->data.channel.selected_nick)
 					sprintf(buffer,"-> %s <-",nick->name);
@@ -258,7 +259,7 @@ void handle_keyboard_buttons()
 
 char upper_case(char c)
 {
-	if (c >= 'a' && c < 'z')
+	if (c >= 'a' && c <= 'z')
 		c -= 32;
 	return c;
 }
@@ -318,7 +319,7 @@ void calc_message_window(pWindow window,int steps)
 			if (button_pressed <= 0)
 			{
 				window->scroll--;
-				button_pressed += 50;
+				button_pressed += 20;
 			}
 		}
 		if (window->scroll < 0)
@@ -514,9 +515,9 @@ void calc_options_window(pWindow window,int steps)
 			leave_channel(momWindow);
 		}
 	}
-	if (momWindow->kind && spGetInput()->button[SP_PRACTICE_OK_NOWASD])
+	if (momWindow->kind && spGetInput()->button[SP_PRACTICE_OK_NOWASD] ||
+		momWindow->kind && spGetInput()->button[SP_PRACTICE_3_NOWASD])
 	{
-		spGetInput()->button[SP_PRACTICE_OK_NOWASD] = 0;
 		spNetIRCNickPointer nick = momWindow->data.channel.channel->first_nick;
 		int i = 0;
 		while (nick)
@@ -528,12 +529,26 @@ void calc_options_window(pWindow window,int steps)
 		}
 		if (nick)
 		{
-			spNetIRCChannelPointer channel = spNetIRCJoinChannel(serverWindow.data.server.server,nick->name);
-			momWindow = create_channel_window(channel);
-			showMessage = 1;
-			spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
+			if (spGetInput()->button[SP_PRACTICE_OK_NOWASD])
+			{
+				spNetIRCChannelPointer channel = spNetIRCJoinChannel(serverWindow.data.server.server,nick->name);
+				momWindow = create_channel_window(channel);
+				showMessage = 1;
+				spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
+			}
+			else
+			{
+				int l = strlen(nick->name);
+				int L = strlen(momWindow->message);
+				if ( L+l < 512)
+				{
+					sprintf(&(momWindow->message[L]),"%s",nick->name);
+					spGetInput()->keyboard.pos+=l;
+				}
+			}
 		}
-		
+		spGetInput()->button[SP_PRACTICE_OK_NOWASD] = 0;
+		spGetInput()->button[SP_PRACTICE_3_NOWASD] = 0;		
 	}
 	if (spGetInput()->button[SP_BUTTON_R_NOWASD])
 	{
