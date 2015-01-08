@@ -365,6 +365,7 @@ void calc_message_window(pWindow window,int steps)
 				if (channel)
 				{
 					spStopKeyboardInput();
+					window->message[0] = 0;
 					momWindow = create_channel_window(channel);
 					showMessage = 1;
 					spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
@@ -524,6 +525,8 @@ void leave_channel(pWindow window)
 	}
 	if (momWindow == NULL)
 		momWindow = &serverWindow;
+	spStopKeyboardInput();
+	spPollKeyboardInput(momWindow->message,512,SP_PRACTICE_OK_NOWASD_MASK);
 	free(window);
 }
 
@@ -1002,7 +1005,6 @@ int main(int argc, char **argv)
 	serverWindow.next = NULL;
 	serverWindow.kind = 0;
 	
-	
 	sprintf(serverWindow.data.server.name,"%s",spConfigGetString(config,"server_name","irc.freenode.net"));
 	sprintf(serverWindow.data.server.port,"%s",spConfigGetString(config,"server_port","6667"));
 	sprintf(serverWindow.data.server.nickname,"%s",spConfigGetString(config,"nickname","Sissiuser"));
@@ -1032,7 +1034,7 @@ int main(int argc, char **argv)
 	serverWindow.block = NULL;
 	serverWindow.scroll = -1;
 	spPollKeyboardInput(serverWindow.data.server.name,256,SP_PRACTICE_OK_NOWASD_MASK);
-
+	
 	spLoop( draw, calc, 10, resize, NULL );
 	
 	if (serverWindow.data.server.server)
