@@ -1,6 +1,6 @@
 #!/bin/sh
 PROGRAM="sissi"
-VERSION="1.0.1.1"
+VERSION="1.0.1.2"
 DEST=./build/*
 echo "<html>" > index.htm
 echo "<head>" >> index.htm
