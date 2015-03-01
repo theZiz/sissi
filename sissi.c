@@ -581,7 +581,7 @@ void calc_options_window(pWindow window,int steps)
 		spGetInput()->button[SP_PRACTICE_OK_NOWASD] = 0;
 		spGetInput()->button[SP_PRACTICE_3_NOWASD] = 0;		
 	}
-	if (spGetInput()->button[SP_BUTTON_R_NOWASD])
+	if (spGetInput()->button[SP_BUTTON_R_NOWASD] && spNetIRCServerReady(serverWindow.data.server.server))
 	{
 		spGetInput()->button[SP_BUTTON_R_NOWASD] = 0;
 		spStopKeyboardInput();
