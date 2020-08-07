@@ -3,15 +3,15 @@
   * it under the terms of the GNU General Public License as published by
   * the Free Software Foundation, either version 2 of the License, or
   * (at your option) any later version.
-  * 
+  *
   * Sissi is distributed in the hope that it will be useful,
   * but WITHOUT ANY WARRANTY; without even the implied warranty of
   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   * GNU General Public License for more details.
-  * 
+  *
   * You should have received a copy of the GNU General Public License
   * along with glutexto.  If not, see <http://www.gnu.org/licenses/>
-  * 
+  *
   * For feedback and questions about my Files and Projects please mail me,
   * Alexander Matthes (Ziz) , zizsdl_at_googlemail.com */
 #include <string.h>
@@ -59,6 +59,7 @@ int main(int argc, char **argv)
 	printf("users channel - users of a channel\n");
 	printf("msg nick/channel message - send a message to the world\n");
 	printf("server message - send a message directly to the server\n");
+	printf("status - print internal sparrow3d server status\n");
 	printf("quit - quit\n");
 	while (1)
 	{
@@ -175,6 +176,19 @@ int main(int argc, char **argv)
 				printf("\033[31mwrong command!\033[0m\n");
 		}
 		else
+		if (starts_with(buffer,"status"))
+		{
+			printf("Server status: %i\n",server->status);
+			if (server->first_channel)
+				printf("Channel statuses:\n",server->status);
+			spNetIRCChannelPointer mom = server->first_channel;
+			while (mom)
+			{
+				printf("\t%s: %i\n",mom->name,mom->status);
+				mom = mom->next;
+			}
+		}
+		else
 		if (starts_with(buffer,"server "))
 		{
 			char* message = strchr(buffer,' ');
@@ -186,6 +200,6 @@ int main(int argc, char **argv)
 	}
 	printf("Finishing...\n");
 	spNetIRCCloseServer(server);
-	spQuitNet();	
+	spQuitNet();
 	return -1;
 }

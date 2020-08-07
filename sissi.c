@@ -3,20 +3,20 @@
   * it under the terms of the GNU General Public License as published by
   * the Free Software Foundation, either version 2 of the License, or
   * (at your option) any later version.
-  * 
+  *
   * Sissi is distributed in the hope that it will be useful,
   * but WITHOUT ANY WARRANTY; without even the implied warranty of
   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   * GNU General Public License for more details.
-  * 
+  *
   * You should have received a copy of the GNU General Public License
   * along with glutexto.  If not, see <http://www.gnu.org/licenses/>
-  * 
+  *
   * For feedback and questions about my Files and Projects please mail me,
   * Alexander Matthes (Ziz) , zizsdl_at_googlemail.com */
 
 
-#define GCW_FEELING
+//#define GCW_FEELING
 
 #if defined GCW_FEELING && defined DESKTOP
 	#define TESTING
@@ -138,17 +138,17 @@ void update_message_window(pWindow window)
 		if (window->kind == 0 || window->data.channel.channel->status == 1)
 			w = spFontDrawRight(screen->w-2,screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight+(font->maxheight-font_small->maxheight)/2,0,"[r] Send",font_small);
 		spRectangle(screen->w/2-w/2-3,screen->h-spGetVirtualKeyboard()->h-font->maxheight/2-font_small->maxheight,0,screen->w-w-6,font->maxheight*3/4,BG2_COLOR);
-		
+
 		if (spFontWidth(window->message,font) < screen->w-w-6)
 		{
 			if (blinkCounter < 500 && spIsKeyboardPolled())
-				spFontDraw(2+spFontWidth(window->message,font),screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight,0,"|",font);	
+				spFontDraw(2+spFontWidth(window->message,font),screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight,0,"|",font);
 			spFontDraw(2,screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight,0,window->message,font);
 		}
 		else
 		{
 			if (blinkCounter < 500 && spIsKeyboardPolled())
-				spFontDraw(2+screen->w-w-6,screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight,0,"|",font);	
+				spFontDraw(2+screen->w-w-6,screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight,0,"|",font);
 			spFontDrawRight(2+screen->w-w-6,screen->h-spGetVirtualKeyboard()->h-font->maxheight-font_small->maxheight,0,window->message,font);
 		}
 		draw_keyboard();
@@ -168,9 +168,9 @@ void update_options_window(pWindow window)
 		buffer[i] = 0;
 
 		spFontDrawMiddle(screen->w/2,0,0,"[l]+[^] apply/server view [l]+[<][>] switch tab [B] select [r] join",font_small);
-		
+
 		spFontDrawMiddle(screen->w/2,font_small->maxheight*3,0,"Server config",font_big);
-		
+
 		int w = spFontWidth("-> user name: ",font)+2;
 		int y = font_small->maxheight*3+font_big->maxheight+font_small->maxheight/2;
 		spFontDraw(2,y+(font->maxheight+font_small->maxheight/2)*serverWindow.data.server.selection,0,"->",font);
@@ -199,7 +199,7 @@ void update_options_window(pWindow window)
 		y+=font->maxheight+font_small->maxheight/2;
 		spFontDrawRight(w,y,0,"password: ",font);
 		spFontDraw(w,y,0,buffer,font);
-		
+
 		draw_keyboard();
 	}
 	else
@@ -430,13 +430,13 @@ void draw_join()
 	spSetBlending(SP_ONE);
 	spFontDrawMiddle(screen->w/2,0,0,"[r] Join [R] Cancel",font_small);
 	spFontDrawMiddle(screen->w/2,font_small->maxheight*3,0,"Join a channel",font_big);
-	
+
 	if (blinkCounter < 500 && spIsKeyboardPolled())
 		spFontDraw(screen->w/2+spFontWidth(join,font_big)/2,screen->h/2-font_big->maxheight,0,"|",font_big);
 	spFontDrawMiddle(screen->w/2,screen->h/2-font_big->maxheight,0,join,font_big);
-	
+
 	draw_keyboard();
-	
+
 	spFlip();
 }
 
@@ -579,7 +579,7 @@ void calc_options_window(pWindow window,int steps)
 			}
 		}
 		spGetInput()->button[SP_PRACTICE_OK_NOWASD] = 0;
-		spGetInput()->button[SP_PRACTICE_3_NOWASD] = 0;		
+		spGetInput()->button[SP_PRACTICE_3_NOWASD] = 0;
 	}
 	if (spGetInput()->button[SP_BUTTON_R_NOWASD] && spNetIRCServerReady(serverWindow.data.server.server))
 	{
@@ -708,7 +708,7 @@ void start_options_window()
 		sprintf(oldRealname,"%s",serverWindow.data.server.realname);
 		sprintf(oldPassword,"%s",serverWindow.data.server.password);
 	}
-	showMessage = 0;	
+	showMessage = 0;
 }
 
 void start_message_window()
@@ -840,7 +840,7 @@ int calc(Uint32 steps)
 		{
 			pWindow window = serverWindow.next;
 			while (window)
-			{	
+			{
 				if (window->data.channel.channel == channel)
 					break;
 				window = window->next;
@@ -855,7 +855,7 @@ int calc(Uint32 steps)
 			channel = channel->next;
 		}
 	}
-	
+
 	blinkCounter+=steps;
 	while (blinkCounter > 1000)
 		blinkCounter-=1000;
@@ -900,7 +900,7 @@ int calc(Uint32 steps)
 			else
 			{
 				update_options_window(momWindow);
-				update_options_window(goalWindow);			
+				update_options_window(goalWindow);
 			}
 			transit = 3;
 			transit_counter = TRANSIT_TIME;
@@ -920,7 +920,7 @@ int calc(Uint32 steps)
 			else
 			{
 				update_options_window(momWindow);
-				update_options_window(goalWindow);			
+				update_options_window(goalWindow);
 			}
 			transit = 1;
 			transit_counter = TRANSIT_TIME;
@@ -935,7 +935,7 @@ int calc(Uint32 steps)
 	{
 		calc_options_window(momWindow,steps);
 		update_options_window(momWindow);
-	}	
+	}
 	return 0;
 }
 
@@ -943,7 +943,7 @@ void resize(Uint16 w,Uint16 h)
 {
 	//Setup of the new/resized window
 	spSelectRenderTarget(spGetWindowSurface());
-  
+
 	spFontShadeButtons(1);
 	//Font Loading
 	spFontSetShadeColor(BG1_COLOR);
@@ -999,12 +999,12 @@ int main(int argc, char **argv)
 	resize(screen->w,screen->h);
 	spSetZSet(0);
 	spSetZTest(0);
-	
+
 	config = spConfigRead("settings.ini","sissi");
 
 	serverWindow.next = NULL;
 	serverWindow.kind = 0;
-	
+
 	sprintf(serverWindow.data.server.name,"%s",spConfigGetString(config,"server_name","irc.freenode.net"));
 	sprintf(serverWindow.data.server.port,"%s",spConfigGetString(config,"server_port","6667"));
 	sprintf(serverWindow.data.server.nickname,"%s",spConfigGetString(config,"nickname","Sissiuser"));
@@ -1034,16 +1034,16 @@ int main(int argc, char **argv)
 	serverWindow.block = NULL;
 	serverWindow.scroll = -1;
 	spPollKeyboardInput(serverWindow.data.server.name,256,SP_PRACTICE_OK_NOWASD_MASK);
-	
+
 	spLoop( draw, calc, 10, resize, NULL );
-	
+
 	if (serverWindow.data.server.server)
 		spNetIRCCloseServer(serverWindow.data.server.server);
-	
+
 	spFontDelete(font);
 	spFontDelete(font_big);
 	spFontDelete(font_small);
-	
+
 	pWindow mom = &serverWindow;
 	while (mom)
 	{
@@ -1056,7 +1056,7 @@ int main(int argc, char **argv)
 			free(mom);
 		mom = next;
 	}
-	
+
 	save_config();
 	spQuitNet();
 	spQuitCore();

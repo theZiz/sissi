@@ -1,7 +1,7 @@
 #!/bin/sh
 # Change the folder to YOUR sparrow3d folder!
 cd ../sparrow3d
-FILES="./target-files/gcw.mk"
+FILES="./target-files/gcw.mk ./target-files/rg350.mk"
 echo "Compiling for all targets..."
 for f in $FILES
 do
